@@ -27,20 +27,20 @@ def main():
 
 	print(solved_board)
 
-	'''solved_check = solved_checker(solved_board, size_of_board)
+	solved_check = solved_checker(solved_board, size_of_board)
 	if solved_check == False:
-		print('solution was not found, best solution was {}'.format(solved_board))
+		print('solution was not found, best solution was \n {}'.format(solved_board))
 		pyautogui.moveTo(330,650)#skip level
 		pyautogui.click()
 		time.sleep(1)
-		main()'''
+		main()
 
 	list_of_array_of_moves = move_finder(solved_board, board_of_colours, size_of_board)
 	draw_solution(board_of_pixels, list_of_array_of_moves)
 	time.sleep(1)
-	'''pyautogui.moveTo(250,370)#move to next level
+	pyautogui.moveTo(250,370)#move to next level
 	pyautogui.click() #click next level
-	time.sleep(1)'''
+	time.sleep(1)
 	main()
 
 def solved_checker(solved_board, size_of_board):
