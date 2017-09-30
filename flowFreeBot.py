@@ -69,9 +69,6 @@ def draw_solution(board_of_pixels, list_of_array_of_moves):
 			move_number += 1
 			#time.sleep(1)
 			
-
-
-
 def move_finder(solved_board, unsolved_board, size_of_board):
 	unsolved_board_with_x = numpy.zeros((size_of_board+2, size_of_board+2), dtype=str)
 	for i in range(size_of_board+2):
@@ -178,8 +175,110 @@ def solveboard(unsolved_board, size_of_board):
 	unsolved_board = corner_move_check(unsolved_board, size_of_board, characters_that_are_ends)
 	if not numpy.array_equal(original_unsolved_board, unsolved_board):
 		unsolved_board = solveboard(unsolved_board, size_of_board)
+	# try next solve method
+	unsolved_board = group_method(unsolved_board, size_of_board, characters_that_are_ends)
+	if not numpy.array_equal(original_unsolved_board, unsolved_board):
+		unsolved_board = solveboard(unsolved_board, size_of_board)
 
 	return(unsolved_board)
+
+def group_method(unsolved_board, size_of_board, characters_that_are_ends):
+	# This method will group together the empty spaces and check what ends the groups have access to. If a group only has access to both ends of a single colour, then that colour must be the one 
+	# to fill the empty space
+	group_array = numpy.zeros((size_of_board, size_of_board), dtype=int)
+	x = 1
+	for i in range(size_of_board): # this section creates a new array where groups of empty zones are numbered
+		for j in range(size_of_board):
+			if unsolved_board[i,j] == '0':
+				group_array[i,j] = x
+				x += 1
+	# next we need to have all the individual groups have unique numbers
+	# to do this we will make each group take the same number as the lowest number in its group
+	old_array = group_array.copy()
+	while(True):
+		for i in range(size_of_board):
+			for j in range(size_of_board):
+				try:
+					if group_array[i,j] > group_array[i-1,j] and group_array[i-1,j] != 0:
+						group_array[i,j] = group_array[i-1,j]
+				except IndexError as e:
+					pass
+				try:
+					if group_array[i,j] > group_array[i+1,j] and group_array[i+1,j] != 0:
+						group_array[i,j] = group_array[i+1,j]
+				except IndexError as e:
+					pass
+				try:
+					if group_array[i,j] > group_array[i,j+1] and group_array[i,j+1] != 0:
+						group_array[i,j] = group_array[i,j+1]
+				except IndexError as e:
+					pass	
+				try:
+					if group_array[i,j] > group_array[i,j-1] and group_array[i,j-1] != 0:
+						group_array[i,j] = group_array[i,j-1]
+				except IndexError as e:
+					pass
+		if numpy.array_equal(old_array, group_array):
+			break
+		else:
+			old_array = group_array.copy()
+	group_numbers = [] # this will be a group containing the id's of each of the groups
+	for number in numpy.unique(group_array):
+		if number != 0:
+			group_numbers.append(number)
+	# now we need to iterate over each group and see which ends each group is connected to, if it is only connected to both ends of 1 colour
+	# then it can be filled with that colour and all capitalized
+	for group_id in group_numbers:
+		connected_ends = []
+		temp_unsolved_board = unsolved_board.copy()
+		for i in range(size_of_board):
+			for j in range(size_of_board):
+				if group_array[i,j] == group_id:
+					try:
+						if i>0:
+							if temp_unsolved_board[i-1,j] in characters_that_are_ends:
+								connected_ends.append(temp_unsolved_board[i-1,j])
+								temp_unsolved_board[i-1,j] = None
+					except IndexError as e:
+						pass
+					try:
+						if temp_unsolved_board[i+1,j] in characters_that_are_ends:
+							connected_ends.append(temp_unsolved_board[i+1,j])
+							temp_unsolved_board[i+1,j] = None
+					except IndexError as e:
+						pass
+					try:
+						if j>0:
+							if temp_unsolved_board[i,j-1] in characters_that_are_ends:
+								connected_ends.append(temp_unsolved_board[i,j-1])
+								temp_unsolved_board[i,j-1] = None
+					except IndexError as e:
+						pass	
+					try:
+						if temp_unsolved_board[i,j+1] in characters_that_are_ends:
+							connected_ends.append(temp_unsolved_board[i,j+1])
+							temp_unsolved_board[i,j+1] = None
+					except IndexError as e:
+						pass
+		# now we need to check if there is only one colour with 2 ends connected to the group
+		colours_with_2_ends_connected = []
+		for end in connected_ends:
+			if connected_ends.count(end) > 1:
+				colours_with_2_ends_connected.append(end)
+				connected_ends.remove(end)
+		if len(colours_with_2_ends_connected) == 1:
+			# then we have found a colour that must fill out empty group, so lets fill it and capitalize it
+			for i in range(size_of_board):
+				for j in range(size_of_board):
+					if group_array[i,j] == group_id:
+						unsolved_board[i,j] = colours_with_2_ends_connected[0]
+			# now capitalize
+			for i in range(size_of_board):
+				for j in range(size_of_board):
+					if unsolved_board[i,j] == colours_with_2_ends_connected[0]:
+						unsolved_board[i,j] = numpy.core.defchararray.capitalize(unsolved_board[i, j])
+	return(unsolved_board)
+
 
 def corner_move_check(unsolved_board, size_of_board, characters_that_are_ends):
 	if unsolved_board[size_of_board-2, 0] in characters_that_are_ends and unsolved_board[size_of_board-1,0] == '0':
