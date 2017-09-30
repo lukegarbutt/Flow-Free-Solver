@@ -9,10 +9,11 @@ import time
 #solve the array
 #drawing the array to the screen
 #done
+pyautogui.PAUSE = 0
+mode = input("Do you want to quit when we hit a level we cannot solve? (please enter 'y' or 'n')\n")
+dimensions_of_board = (30, 170, 470, 610)
 
 def main():
-	pyautogui.PAUSE = 0
-	dimensions_of_board = (30, 170, 470, 610)
 	original_board = capture_board(dimensions_of_board)
 	#cv2.imshow('original_board', original_board)
 	#cv2.waitKey(0)
@@ -24,17 +25,16 @@ def main():
 	#print(board_of_pixels)
 	board_of_colours = create_colour_board(board_of_pixels, size_of_board)
 	solved_board = solveboard(board_of_colours, size_of_board)
-
-	print(solved_board)
-
 	solved_check = solved_checker(solved_board, size_of_board)
 	if solved_check == False:
 		print('solution was not found, best solution was \n {}'.format(solved_board))
+		if mode == 'y':
+			quit()
 		pyautogui.moveTo(330,650)#skip level
 		pyautogui.click()
 		time.sleep(1)
 		main()
-
+	print(solved_board)
 	list_of_array_of_moves = move_finder(solved_board, board_of_colours, size_of_board)
 	draw_solution(board_of_pixels, list_of_array_of_moves)
 	time.sleep(1)
@@ -167,7 +167,9 @@ def move_finder(solved_board, unsolved_board, size_of_board):
 
 def solveboard(unsolved_board, size_of_board):
 	characters_that_are_ends = ['b', 'r', 'g', 'y', 'o', 'p', 'z', 'c', 't', 'd', 'q', 's', 'l', 'm', 'w', 'a']
-	original_unsolved_board = unsolved_board
+	original_unsolved_board = unsolved_board.copy()
+
+	# methods that will never make a mistake
 	unsolved_board = forced_move_check(unsolved_board, size_of_board, characters_that_are_ends)
 	if not numpy.array_equal(original_unsolved_board, unsolved_board):
 		unsolved_board = solveboard(unsolved_board, size_of_board)
@@ -179,6 +181,9 @@ def solveboard(unsolved_board, size_of_board):
 	unsolved_board = group_method(unsolved_board, size_of_board, characters_that_are_ends)
 	if not numpy.array_equal(original_unsolved_board, unsolved_board):
 		unsolved_board = solveboard(unsolved_board, size_of_board)
+
+	# methods that might make mistakes
+
 
 	return(unsolved_board)
 
@@ -262,7 +267,7 @@ def group_method(unsolved_board, size_of_board, characters_that_are_ends):
 						pass
 		# now we need to check if there is only one colour with 2 ends connected to the group
 		colours_with_2_ends_connected = []
-		for end in connected_ends:
+		for end in connected_ends[::-1]:
 			if connected_ends.count(end) > 1:
 				colours_with_2_ends_connected.append(end)
 				connected_ends.remove(end)
