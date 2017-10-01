@@ -499,8 +499,5 @@ def locate_colours(size_of_board, size_of_square, image):
 		centre_of_circles[i][0] = centre_of_circles[i][0] + x_dim
 		centre_of_circles[i][1] = centre_of_circles[i][1] + y_dim'''
 
-
-
-
-
-main()
+if __name__ == '__main__':
+	main()
