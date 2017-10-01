@@ -9,39 +9,38 @@ import time
 #solve the array
 #drawing the array to the screen
 #done
-pyautogui.PAUSE = 0
-mode = input("Do you want to quit when we hit a level we cannot solve? (please enter 'y' or 'n')\n")
-dimensions_of_board = (30, 170, 470, 610)
+#pyautogui.PAUSE = 0
 
 def main():
-	original_board = capture_board(dimensions_of_board)
-	#cv2.imshow('original_board', original_board)
-	#cv2.waitKey(0)
-	size_of_board = vertical_line_detector(original_board)
-	print('You are playing a {} x {} board'.format(size_of_board, size_of_board))
-	size_of_square = (dimensions_of_board[2]-dimensions_of_board[0])/size_of_board
-	#centre_of_circles = locate_colours(size_of_board, size_of_square, original_board)
-	board_of_pixels = create_pixel_board(dimensions_of_board, size_of_board, size_of_square)
-	#print(board_of_pixels)
-	board_of_colours = create_colour_board(board_of_pixels, size_of_board)
-	solved_board = solveboard(board_of_colours, size_of_board)
-	solved_check = solved_checker(solved_board, size_of_board)
-	if solved_check == False:
-		print('solution was not found, best solution was \n {}'.format(solved_board))
-		if mode == 'y':
-			quit()
-		pyautogui.moveTo(330,650)#skip level
-		pyautogui.click()
+	mode = input("Do you want to quit when we hit a level we cannot solve? (please enter 'y' or 'n')\n")
+	dimensions_of_board = (30, 170, 470, 610)
+	while(True):
+		original_board = capture_board(dimensions_of_board)
+		#cv2.imshow('original_board', original_board)
+		#cv2.waitKey(0)
+		size_of_board = vertical_line_detector(original_board)
+		print('You are playing a {} x {} board'.format(size_of_board, size_of_board))
+		size_of_square = (dimensions_of_board[2]-dimensions_of_board[0])/size_of_board
+		#centre_of_circles = locate_colours(size_of_board, size_of_square, original_board)
+		board_of_pixels = create_pixel_board(dimensions_of_board, size_of_board, size_of_square)
+		#print(board_of_pixels)
+		board_of_colours = create_colour_board(board_of_pixels, size_of_board)
+		solved_board = solveboard(board_of_colours, size_of_board)
+		solved_check = solved_checker(solved_board, size_of_board)
+		if solved_check == False:
+			print('solution was not found, best solution was \n {}'.format(solved_board))
+			if mode == 'y':
+				quit()
+			pyautogui.moveTo(330,650)#skip level
+			pyautogui.click()
+			time.sleep(1)
+		print(solved_board)
+		list_of_array_of_moves = move_finder(solved_board, board_of_colours, size_of_board)
+		draw_solution(board_of_pixels, list_of_array_of_moves)
 		time.sleep(1)
-		main()
-	print(solved_board)
-	list_of_array_of_moves = move_finder(solved_board, board_of_colours, size_of_board)
-	draw_solution(board_of_pixels, list_of_array_of_moves)
-	time.sleep(1)
-	pyautogui.moveTo(250,370)#move to next level
-	pyautogui.click() #click next level
-	time.sleep(1)
-	main()
+		pyautogui.moveTo(250,370)#move to next level
+		pyautogui.click() #click next level
+		time.sleep(1)
 
 def solved_checker(solved_board, size_of_board):
 	for i in range(size_of_board):
@@ -182,9 +181,80 @@ def solveboard(unsolved_board, size_of_board):
 	if not numpy.array_equal(original_unsolved_board, unsolved_board):
 		unsolved_board = solveboard(unsolved_board, size_of_board)
 
-	# methods that might make mistakes
+	if not solved_checker(unsolved_board, size_of_board):
+		print('Using riskier methods')
+		# methods that might make mistakes
+		unsolved_board = connect_adjacent_ends(unsolved_board, size_of_board, characters_that_are_ends)
+		if not numpy.array_equal(original_unsolved_board, unsolved_board):
+			unsolved_board = solveboard(unsolved_board, size_of_board)
+		unsolved_board = traverse_outer_edge(unsolved_board, size_of_board, characters_that_are_ends)
+		if not numpy.array_equal(original_unsolved_board, unsolved_board):
+			unsolved_board = solveboard(unsolved_board, size_of_board)
 
+	return(unsolved_board)
 
+def traverse_outer_edge(unsolved_board, size_of_board, characters_that_are_ends):
+	for i in range(1,size_of_board-1):
+		if unsolved_board[i,0] in characters_that_are_ends:
+			if unsolved_board[i-1,0] == numpy.core.defchararray.capitalize(unsolved_board[i, 0]) and unsolved_board[i+1,0] == '0':
+				unsolved_board[i+1,0] = unsolved_board[i,0]
+				unsolved_board[i,0] = numpy.core.defchararray.capitalize(unsolved_board[i, 0])
+				break
+			if unsolved_board[i+1,0] == numpy.core.defchararray.capitalize(unsolved_board[i, 0]) and unsolved_board[i-1,0] == '0':
+				unsolved_board[i-1,0] = unsolved_board[i,0]
+				unsolved_board[i,0] = numpy.core.defchararray.capitalize(unsolved_board[i, 0])
+				break
+		if unsolved_board[i,size_of_board-1] in characters_that_are_ends:
+			if unsolved_board[i-1,size_of_board-1] == numpy.core.defchararray.capitalize(unsolved_board[i, size_of_board-1]) and unsolved_board[i+1,size_of_board-1] == '0':
+				unsolved_board[i+1,size_of_board-1] = unsolved_board[i,size_of_board-1]
+				unsolved_board[i,size_of_board-1] = numpy.core.defchararray.capitalize(unsolved_board[i, size_of_board-1])
+				break
+			if unsolved_board[i+1,size_of_board-1] == numpy.core.defchararray.capitalize(unsolved_board[i, size_of_board-1]) and unsolved_board[i-1,size_of_board-1] == '0':
+				unsolved_board[i-1,size_of_board-1] = unsolved_board[i,size_of_board-1]
+				unsolved_board[i,size_of_board-1] = numpy.core.defchararray.capitalize(unsolved_board[i, size_of_board-1])
+				break
+		if unsolved_board[0,i] in characters_that_are_ends:
+			if unsolved_board[0,i-1] == numpy.core.defchararray.capitalize(unsolved_board[0,i]) and unsolved_board[0,i+1] == '0':
+				unsolved_board[0,i+1] = unsolved_board[0,i]
+				unsolved_board[0,i] = numpy.core.defchararray.capitalize(unsolved_board[0,i])
+				break
+			if unsolved_board[0,i+1] == numpy.core.defchararray.capitalize(unsolved_board[0,i]) and unsolved_board[0,i-1] == '0':
+				unsolved_board[0,i-1] = unsolved_board[0,i]
+				unsolved_board[0,i] = numpy.core.defchararray.capitalize(unsolved_board[0,i])
+				break
+		if unsolved_board[size_of_board-1,i] in characters_that_are_ends:
+			if unsolved_board[size_of_board-1,i-1] == numpy.core.defchararray.capitalize(unsolved_board[size_of_board-1,i]) and unsolved_board[size_of_board-1,i+1] == '0':
+				unsolved_board[size_of_board-1,i+1] = unsolved_board[size_of_board-1,i]
+				unsolved_board[size_of_board-1,i] = numpy.core.defchararray.capitalize(unsolved_board[size_of_board-1,i])
+				break
+			if unsolved_board[size_of_board-1,i+1] == numpy.core.defchararray.capitalize(unsolved_board[size_of_board-1,i]) and unsolved_board[size_of_board-1,i-1] == '0':
+				unsolved_board[size_of_board-1,i-1] = unsolved_board[size_of_board-1,i]
+				unsolved_board[size_of_board-1,i] = numpy.core.defchararray.capitalize(unsolved_board[size_of_board-1,i])
+				break
+	return(unsolved_board)
+
+def connect_adjacent_ends(unsolved_board, size_of_board, characters_that_are_ends):
+	for i in range(size_of_board):
+		for j in range(size_of_board):
+			if unsolved_board[i,j] in characters_that_are_ends:
+				if unsolved_board[i,j] == unsolved_board[i-1,j] and i > 0:
+					unsolved_board[i,j] = numpy.core.defchararray.capitalize(unsolved_board[i, j])
+					unsolved_board[i-1,j] = numpy.core.defchararray.capitalize(unsolved_board[i-1, j])
+				try:
+					if unsolved_board[i,j] == unsolved_board[i+1,j]:
+						unsolved_board[i,j] = numpy.core.defchararray.capitalize(unsolved_board[i, j])
+						unsolved_board[i+1,j] = numpy.core.defchararray.capitalize(unsolved_board[i+1, j])
+				except IndexError as e:
+					pass
+				if unsolved_board[i,j] == unsolved_board[i,j-1] and j > 0:
+					unsolved_board[i,j] = numpy.core.defchararray.capitalize(unsolved_board[i, j])
+					unsolved_board[i,j-1] = numpy.core.defchararray.capitalize(unsolved_board[i, j-1])
+				try:
+					if unsolved_board[i,j] == unsolved_board[i,j+1]:
+						unsolved_board[i,j] = numpy.core.defchararray.capitalize(unsolved_board[i, j])
+						unsolved_board[i,j+1] = numpy.core.defchararray.capitalize(unsolved_board[i, j+1])
+				except IndexError as e:
+					pass
 	return(unsolved_board)
 
 def group_method(unsolved_board, size_of_board, characters_that_are_ends):
