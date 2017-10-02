@@ -41,6 +41,7 @@ def main():
 		pyautogui.moveTo(250,370)#move to next level
 		pyautogui.click() #click next level
 		time.sleep(1)
+		quit()
 
 def solved_checker(solved_board, size_of_board):
 	for i in range(size_of_board):
@@ -180,15 +181,17 @@ def solveboard(unsolved_board, size_of_board):
 	unsolved_board = group_method(unsolved_board, size_of_board, characters_that_are_ends)
 	if not numpy.array_equal(original_unsolved_board, unsolved_board):
 		unsolved_board = solveboard(unsolved_board, size_of_board)
+	unsolved_board = connect_adjacent_ends(unsolved_board, size_of_board, characters_that_are_ends)
+	if not numpy.array_equal(original_unsolved_board, unsolved_board):
+		unsolved_board = solveboard(unsolved_board, size_of_board)
 
 	if not solved_checker(unsolved_board, size_of_board):
+		print(unsolved_board)
 		print('Using riskier methods')
 		# methods that might make mistakes
-		unsolved_board = connect_adjacent_ends(unsolved_board, size_of_board, characters_that_are_ends)
-		if not numpy.array_equal(original_unsolved_board, unsolved_board):
-			unsolved_board = solveboard(unsolved_board, size_of_board)
 		unsolved_board = traverse_outer_edge(unsolved_board, size_of_board, characters_that_are_ends)
 		if not numpy.array_equal(original_unsolved_board, unsolved_board):
+			print(unsolved_board)
 			unsolved_board = solveboard(unsolved_board, size_of_board)
 
 	return(unsolved_board)
@@ -274,8 +277,9 @@ def group_method(unsolved_board, size_of_board, characters_that_are_ends):
 		for i in range(size_of_board):
 			for j in range(size_of_board):
 				try:
-					if group_array[i,j] > group_array[i-1,j] and group_array[i-1,j] != 0:
-						group_array[i,j] = group_array[i-1,j]
+					if i > 0:
+						if group_array[i,j] > group_array[i-1,j] and group_array[i-1,j] != 0:
+							group_array[i,j] = group_array[i-1,j]
 				except IndexError as e:
 					pass
 				try:
@@ -289,15 +293,16 @@ def group_method(unsolved_board, size_of_board, characters_that_are_ends):
 				except IndexError as e:
 					pass	
 				try:
-					if group_array[i,j] > group_array[i,j-1] and group_array[i,j-1] != 0:
-						group_array[i,j] = group_array[i,j-1]
+					if j > 0:
+						if group_array[i,j] > group_array[i,j-1] and group_array[i,j-1] != 0:
+							group_array[i,j] = group_array[i,j-1]
 				except IndexError as e:
 					pass
 		if numpy.array_equal(old_array, group_array):
 			break
 		else:
 			old_array = group_array.copy()
-	group_numbers = [] # this will be a group containing the id's of each of the groups
+	group_numbers = [] # this will be a list containing the id's of each of the groups
 	for number in numpy.unique(group_array):
 		if number != 0:
 			group_numbers.append(number)
