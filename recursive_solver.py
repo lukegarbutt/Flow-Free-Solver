@@ -162,6 +162,8 @@ def pass_constraints_check(board):
 			if board[i,j] in characters_that_are_ends:
 				if number_of_neighbours(board, i, j) > 2:
 					return(False) # this is because we have some 'loops' on our board and these are not allowed
+				if number_of_empty_neighbours(board, i, j) == 0:
+					return(False) # this is because we have an isolated end with nowhere to go
 	if not impossible_groups_check(board):
 		return(False) # this is because we failed the impossible groups check
 	return(True)
@@ -298,6 +300,33 @@ def number_of_neighbours(board, x, y):
 	except IndexError as e:
 		pass
 	return(number_of_neighbours)
+
+def number_of_empty_neighbours(board, x, y):
+	# this will check how many neighbours the x,y square has of the same colour and return it as an int
+	number_of_empty_neighbours = 0
+	try:
+		if x > 0:
+			if board[x-1,y] == '0':
+				number_of_empty_neighbours += 1
+	except IndexError as e:
+		pass
+	try:
+		if board[x+1,y] == '0':
+			number_of_empty_neighbours += 1
+	except IndexError as e:
+		pass
+	try:
+		if y > 0:
+			if board[x,y-1] == '0':
+				number_of_empty_neighbours += 1
+	except IndexError as e:
+		pass
+	try:
+		if board[x,y+1] == '0':
+			number_of_empty_neighbours += 1
+	except IndexError as e:
+		pass
+	return(number_of_empty_neighbours)
 
 start = time.time()
 if __name__ == '__main__':
