@@ -66,7 +66,6 @@ def recurse_solve(board):
 				except IndexError as e:
 					pass
 	if recursive_solver.is_solved(board):
-		print(board, 'here')
 		return(board)
 	elif recursive_solver.pass_constraints_check(board):
 		for possible_board in find_possible_moves(board):
