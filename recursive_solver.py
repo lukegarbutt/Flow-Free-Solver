@@ -328,7 +328,7 @@ def number_of_empty_neighbours(board, x, y):
 		pass
 	return(number_of_empty_neighbours)
 
-start = time.time()
 if __name__ == '__main__':
+	start = time.time()
 	main()
-print('time taken was {} seconds'.format(time.time()-start))
+	print('time taken was {} seconds'.format(time.time()-start))
