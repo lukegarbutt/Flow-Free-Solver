@@ -185,14 +185,14 @@ def solveboard(unsolved_board, size_of_board):
 	if not numpy.array_equal(original_unsolved_board, unsolved_board):
 		unsolved_board = solveboard(unsolved_board, size_of_board)
 
-	if not solved_checker(unsolved_board, size_of_board):
+	'''if not solved_checker(unsolved_board, size_of_board):
 		print(unsolved_board)
 		print('Using riskier methods')
 		# methods that might make mistakes
 		unsolved_board = traverse_outer_edge(unsolved_board, size_of_board, characters_that_are_ends)
 		if not numpy.array_equal(original_unsolved_board, unsolved_board):
 			print(unsolved_board)
-			unsolved_board = solveboard(unsolved_board, size_of_board)
+			unsolved_board = solveboard(unsolved_board, size_of_board)'''
 
 	return(unsolved_board)
 

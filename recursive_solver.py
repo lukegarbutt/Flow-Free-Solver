@@ -141,6 +141,9 @@ def is_solved(board): # takes in a board and tells you if it is solved
 	elements_in_board = numpy.unique(board)
 	if '0' in elements_in_board:
 		return(False)
+	for element in elements_in_board:
+		if element.islower():
+			return(False)
 	for colour in elements_in_board:
 		number_of_ends = 0
 		for i in range(board.shape[0]):
@@ -159,9 +162,10 @@ def pass_constraints_check(board):
 	characters_that_are_ends = ['b', 'r', 'g', 'y', 'o', 'p', 'z', 'c', 't', 'd', 'q', 's', 'l', 'm', 'w', 'a']
 	for i in range(board.shape[0]):
 		for j in range(board.shape[1]):
-			if board[i,j] in characters_that_are_ends:
+			if board[i,j] != '0':
 				if number_of_neighbours(board, i, j) > 2:
 					return(False) # this is because we have some 'loops' on our board and these are not allowed
+			if board[i,j] in characters_that_are_ends:
 				if number_of_empty_neighbours(board, i, j) == 0:
 					return(False) # this is because we have an isolated end with nowhere to go
 	if not impossible_groups_check(board):

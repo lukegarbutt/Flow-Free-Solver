@@ -31,7 +31,9 @@ def main():
 		time.sleep(1)
 
 def recurse_solve(board):
-	#print(board)
+	#print(board, '\n')
+	#board = flowFreeBot.solveboard(board, board.shape[0]).copy()
+	#print(board, '\n')
 	#time.sleep(1)
 	characters_that_are_ends = ['b', 'r', 'g', 'y', 'o', 'p', 'z', 'c', 't', 'd', 'q', 's', 'l', 'm', 'w', 'a']
 	for i in range(board.shape[0]):
@@ -64,6 +66,7 @@ def recurse_solve(board):
 				except IndexError as e:
 					pass
 	if recursive_solver.is_solved(board):
+		print(board, 'here')
 		return(board)
 	elif recursive_solver.pass_constraints_check(board):
 		for possible_board in find_possible_moves(board):
