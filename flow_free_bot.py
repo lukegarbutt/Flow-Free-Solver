@@ -8,27 +8,32 @@ import numpy
 def main():
 	dimensions_of_board = (30, 170, 470, 610)
 	while(True):
-		original_board = flowFreeBot.capture_board(dimensions_of_board)
-		size_of_board = flowFreeBot.vertical_line_detector(original_board)
-		print('You are playing a {} x {} board'.format(size_of_board, size_of_board))
-		size_of_square = (dimensions_of_board[2]-dimensions_of_board[0])/size_of_board
-		board_of_pixels = flowFreeBot.create_pixel_board(dimensions_of_board, size_of_board, size_of_square)
-		board_of_colours = flowFreeBot.create_colour_board(board_of_pixels, size_of_board)
-		print(board_of_colours)
-		# save the initial board of colours as the head of our tree
-		# next generate all the children of the parent and add these as branches to some data structure
-		# next pass all these children into is_solved() and if any return True then we have a solution
-		# if not then generate a new generation of children using all our current children as the parents (this will grow exponentially and need serious optimisation)
-		start = time.time()
-		solved_board = recurse_solve(board_of_colours)
-		print('time taken was {} seconds'.format(time.time()-start))
-		print(solved_board)
-		list_of_array_of_moves = flowFreeBot.move_finder(solved_board, board_of_colours, size_of_board)
-		flowFreeBot.draw_solution(board_of_pixels, list_of_array_of_moves)
-		time.sleep(1)
-		pyautogui.moveTo(250,370)#move to next level
-		pyautogui.click() #click next level
-		time.sleep(1)
+		try:
+			original_board = flowFreeBot.capture_board(dimensions_of_board)
+			size_of_board = flowFreeBot.vertical_line_detector(original_board)
+			print('You are playing a {} x {} board'.format(size_of_board, size_of_board))
+			size_of_square = (dimensions_of_board[2]-dimensions_of_board[0])/size_of_board
+			board_of_pixels = flowFreeBot.create_pixel_board(dimensions_of_board, size_of_board, size_of_square)
+			board_of_colours = flowFreeBot.create_colour_board(board_of_pixels, size_of_board)
+			print(board_of_colours)
+			# save the initial board of colours as the head of our tree
+			# next generate all the children of the parent and add these as branches to some data structure
+			# next pass all these children into is_solved() and if any return True then we have a solution
+			# if not then generate a new generation of children using all our current children as the parents (this will grow exponentially and need serious optimisation)
+			start = time.time()
+			solved_board = recurse_solve(board_of_colours)
+			print('time taken was {} seconds'.format(time.time()-start))
+			print(solved_board)
+			list_of_array_of_moves = flowFreeBot.move_finder(solved_board, board_of_colours, size_of_board)
+			flowFreeBot.draw_solution(board_of_pixels, list_of_array_of_moves)
+			time.sleep(1)
+			pyautogui.moveTo(250,370)#move to next level
+			pyautogui.click() #click next level
+			time.sleep(1)
+		except:
+			time.sleep(1)
+			pyautogui.click(250,650)
+			time.sleep(1)
 
 def recurse_solve(board):
 	#print(board, '\n')
